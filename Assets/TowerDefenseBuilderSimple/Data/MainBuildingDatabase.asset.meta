@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e03f222659170954fa8c68dcbc831b39
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 324255
+  packageName: Tower Defense Builder Simple
+  packageVersion: 1.0
+  assetPath: Assets/TowerDefenseBuilderSimple/Data/MainBuildingDatabase.asset
+  uploadId: 773634

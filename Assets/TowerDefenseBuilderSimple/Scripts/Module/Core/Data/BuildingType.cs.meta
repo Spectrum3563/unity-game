@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 952da4be7e8c27a47b6f980f49738ed3
+AssetOrigin:
+  serializedVersion: 1
+  productId: 324255
+  packageName: Tower Defense Builder Simple
+  packageVersion: 1.0
+  assetPath: Assets/TowerDefenseBuilderSimple/Scripts/Module/Core/Data/BuildingType.cs
+  uploadId: 773634

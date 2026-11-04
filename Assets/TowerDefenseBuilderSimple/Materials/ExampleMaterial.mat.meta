@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c876e344e2ca00e42a905b7c61162c96
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 324255
+  packageName: Tower Defense Builder Simple
+  packageVersion: 1.0
+  assetPath: Assets/TowerDefenseBuilderSimple/Materials/ExampleMaterial.mat
+  uploadId: 773634

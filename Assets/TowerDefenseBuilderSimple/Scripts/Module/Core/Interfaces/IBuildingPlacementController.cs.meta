@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 0bd136a798e9b8a458192b4d56502a80
+AssetOrigin:
+  serializedVersion: 1
+  productId: 324255
+  packageName: Tower Defense Builder Simple
+  packageVersion: 1.0
+  assetPath: Assets/TowerDefenseBuilderSimple/Scripts/Module/Core/Interfaces/IBuildingPlacementController.cs
+  uploadId: 773634

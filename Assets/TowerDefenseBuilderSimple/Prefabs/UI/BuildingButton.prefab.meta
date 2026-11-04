@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6b54300fe771d604dbda6b3493e87645
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 324255
+  packageName: Tower Defense Builder Simple
+  packageVersion: 1.0
+  assetPath: Assets/TowerDefenseBuilderSimple/Prefabs/UI/BuildingButton.prefab
+  uploadId: 773634

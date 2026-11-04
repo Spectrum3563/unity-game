@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 5813fd72b9d1b904784574a554540c09
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 324255
+  packageName: Tower Defense Builder Simple
+  packageVersion: 1.0
+  assetPath: Assets/TowerDefenseBuilderSimple/Prefabs/Towers/SlowTower.prefab
+  uploadId: 773634

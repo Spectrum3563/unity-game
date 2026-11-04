@@ -40,6 +40,11 @@ public class TowerBase : MonoBehaviour
     [Header("Ghost")]
     public SpriteRenderer ghostRenderer;
 
+    [Header("Effects")]
+    public GameObject projectilePrefab;
+    public GameObject hitEffectPrefab;
+    public float hitEffectLifetime = 0.5f;
+
     private float cooldown;
 
     private void Awake()
@@ -164,29 +169,69 @@ public class TowerBase : MonoBehaviour
         }
     }
 
-    private void AttackRanged()
+private void SpawnHitEffect(Vector3 position)
+{
+    if (hitEffectPrefab == null)
+        return;
+
+    GameObject fx = Instantiate(hitEffectPrefab, position, Quaternion.identity);
+    Destroy(fx, hitEffectLifetime);
+}  
+
+
+private void AttackRanged()
+{
+    Collider2D[] enemies = Physics2D.OverlapCircleAll(
+        transform.position,
+        range,
+        enemyLayer
+    );
+
+    if (enemies.Length == 0)
+        return;
+
+    int targets = Mathf.Min(maxTargets, enemies.Length);
+
+    for (int i = 0; i < targets; i++)
     {
-        Collider2D[] enemies = Physics2D.OverlapCircleAll(
-            transform.position,
-            range,
-            enemyLayer
-        );
+        EnemyController enemy = enemies[i].GetComponent<EnemyController>();
 
-        if (enemies.Length == 0)
-            return;
+        if (enemy == null || enemy.isDead)
+            continue;
 
-        int targets = Mathf.Min(maxTargets, enemies.Length);
-
-        for (int i = 0; i < targets; i++)
+        if (projectilePrefab != null)
         {
-            EnemyController enemy = enemies[i].GetComponent<EnemyController>();
+            GameObject p = Instantiate(
+                projectilePrefab,
+                transform.position,
+                Quaternion.identity
+            );
 
-            if (enemy == null || enemy.isDead)
-                continue;
+            Projectile projectile = p.GetComponent<Projectile>();
 
+            if (projectile != null)
+            {
+                projectile.Init(
+                    enemy,
+                    damage,
+                    projectileSpeed,
+                    hitEffectPrefab,
+                    hitEffectLifetime
+                );
+            }
+            else
+            {
+                Destroy(p);
+            }
+        }
+        else
+        {
+            // No projectile assigned: instant hit, as before.
             enemy.TakeDamage(damage);
+            SpawnHitEffect(enemy.transform.position);
         }
     }
+}
 
     private void AttackSlow()
     {

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8b62cbfa28e9cf342a163f535223bc30
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 324255
+  packageName: Tower Defense Builder Simple
+  packageVersion: 1.0
+  assetPath: Assets/TowerDefenseBuilderSimple/TowerDefenseBuilderSimple.asmdef
+  uploadId: 773634

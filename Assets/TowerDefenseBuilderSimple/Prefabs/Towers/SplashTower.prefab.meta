@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c4bfa9c5130ed974796ee00b84bf2ba9
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 324255
+  packageName: Tower Defense Builder Simple
+  packageVersion: 1.0
+  assetPath: Assets/TowerDefenseBuilderSimple/Prefabs/Towers/SplashTower.prefab
+  uploadId: 773634

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 28284240429602d4f9f5b3117d817d4f
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 324255
+  packageName: Tower Defense Builder Simple
+  packageVersion: 1.0
+  assetPath: Assets/TowerDefenseBuilderSimple/Prefabs/Towers/AdvancedTower.prefab
+  uploadId: 773634

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 68953b8147e2fd442932b307e2d6cc14
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 324255
+  packageName: Tower Defense Builder Simple
+  packageVersion: 1.0
+  assetPath: Assets/TowerDefenseBuilderSimple/Materials/InvalidPlacement.mat
+  uploadId: 773634

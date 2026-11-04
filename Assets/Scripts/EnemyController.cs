@@ -161,6 +161,10 @@ public class EnemyController : MonoBehaviour
         Vector3 targetPosition = path[pathIndex];
         Vector3 direction = targetPosition - transform.position;
 
+        // Face the direction of travel (sprite assumed to face right).
+        if (Mathf.Abs(direction.x) > 0.01f)
+            spriteRenderer.flipX = direction.x < 0f;
+
         if (direction.magnitude < 0.05f)
         {
             if (pathIndex >= path.Count - 1)
