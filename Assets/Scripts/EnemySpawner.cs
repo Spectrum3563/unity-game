@@ -24,21 +24,65 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float largeSpeedMax = 0.5f;
     [SerializeField] private float largeHealth = 5000f;
 
+    [Header("Difficulty Scaling Over Time")]
+    [Tooltip("Extra health per minute, as a fraction. 0.25 = +25% of base health each minute.")]
+    [SerializeField] private float healthGrowthPerMinute = 0.25f;
+
+    [Tooltip("Extra speed per minute, as a fraction. 0.05 = +5% of base speed each minute.")]
+    [SerializeField] private float speedGrowthPerMinute = 0.05f;
+
+    [Tooltip("Speed multiplier will never exceed this value.")]
+    [SerializeField] private float maxSpeedMultiplier = 1.5f;
+
+    [Tooltip("Seconds removed from the spawn interval each minute.")]
+    [SerializeField] private float spawnIntervalReductionPerMinute = 0.1f;
+
+    [Tooltip("The spawn interval will never go below this value.")]
+    [SerializeField] private float minSpawnInterval = 0.6f;
+
     private float spawnTimer;
+    private float elapsedTime;
+
+    private float ElapsedMinutes => elapsedTime / 60f;
+
+    // Final multipliers = growth over time x the chosen difficulty.
+    private float HealthMultiplier =>
+        (1f + healthGrowthPerMinute * DifficultySettings.GrowthMultiplier * ElapsedMinutes)
+        * DifficultySettings.EnemyHealthMultiplier;
+
+    private float SpeedMultiplier =>
+        Mathf.Min(
+            1f + speedGrowthPerMinute * DifficultySettings.GrowthMultiplier * ElapsedMinutes,
+            maxSpeedMultiplier
+        )
+        * DifficultySettings.EnemySpeedMultiplier;
+
+    private float CurrentSpawnInterval =>
+        Mathf.Max(
+            spawnInterval
+            - spawnIntervalReductionPerMinute * DifficultySettings.GrowthMultiplier * ElapsedMinutes,
+            minSpawnInterval
+        )
+        * DifficultySettings.SpawnIntervalMultiplier;
 
     private void Start()
     {
-        spawnTimer = spawnInterval;
+        spawnTimer = spawnInterval * DifficultySettings.SpawnIntervalMultiplier;
+        elapsedTime = 0f;
     }
 
     private void Update()
     {
+        // Time.deltaTime is 0 while the game is paused (start menu, game over),
+        // so the difficulty only grows while the game is actually running.
+        elapsedTime += Time.deltaTime;
+
         spawnTimer -= Time.deltaTime;
 
         if (spawnTimer <= 0f)
         {
             SpawnEnemy();
-            spawnTimer = spawnInterval;
+            spawnTimer = CurrentSpawnInterval;
         }
     }
 
@@ -86,32 +130,35 @@ public class EnemySpawner : MonoBehaviour
             size = EnemyController.EnemySize.Large;
         }
 
+        float healthMult = HealthMultiplier;
+        float speedMult = SpeedMultiplier;
+
         switch (size)
         {
             case EnemyController.EnemySize.Small:
                 enemy.Configure(
                     size,
-                    smallSpeedMin,
-                    smallSpeedMax,
-                    smallHealth
+                    smallSpeedMin * speedMult,
+                    smallSpeedMax * speedMult,
+                    smallHealth * healthMult
                 );
                 break;
 
             case EnemyController.EnemySize.Medium:
                 enemy.Configure(
                     size,
-                    mediumSpeedMin,
-                    mediumSpeedMax,
-                    mediumHealth
+                    mediumSpeedMin * speedMult,
+                    mediumSpeedMax * speedMult,
+                    mediumHealth * healthMult
                 );
                 break;
 
             case EnemyController.EnemySize.Large:
                 enemy.Configure(
                     size,
-                    largeSpeedMin,
-                    largeSpeedMax,
-                    largeHealth
+                    largeSpeedMin * speedMult,
+                    largeSpeedMax * speedMult,
+                    largeHealth * healthMult
                 );
                 break;
         }

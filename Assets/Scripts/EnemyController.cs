@@ -46,19 +46,20 @@ public class EnemyController : MonoBehaviour
     private float slowTimer;
     private PlayerHealth playerHealth;
 
-    private void Awake()
-    {
-        body = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+private void Awake()
+{
+    body = GetComponent<Rigidbody2D>();
+    spriteRenderer = GetComponent<SpriteRenderer>();
 
-        body.gravityScale = 0f;
-        body.linearDamping = 0f;
-        body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        body.interpolation = RigidbodyInterpolation2D.Interpolate;
+    body.bodyType = RigidbodyType2D.Kinematic;
+    body.gravityScale = 0f;
+    body.linearDamping = 0f;
+    body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+    body.interpolation = RigidbodyInterpolation2D.Interpolate;
 
-        currentHealth = maxHealth;
-        currentSpeed = movementSpeed;
-    }
+    currentHealth = maxHealth;
+    currentSpeed = movementSpeed;
+}
 
     private void Start()
     {
