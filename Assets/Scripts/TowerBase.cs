@@ -4,9 +4,10 @@ using UnityEngine.Rendering;
 public class TowerBase : MonoBehaviour
 {
     private const int RangeCircleSegments = 64;
-    private const float RangeCircleOpacity = 0.18f;
+    private const float RangeCircleOpacity = 0.12f;
     private static Mesh rangeCircleMesh;
-    private static Material rangeCircleMaterial;
+    private static Material rangedRangeCircleMaterial;
+    private static Material slowRangeCircleMaterial;
     private static bool rangeCircleInitializationAttempted;
 
     public enum TowerType
@@ -53,6 +54,7 @@ public class TowerBase : MonoBehaviour
     public float hitEffectLifetime = 0.5f;
 
     private float cooldown;
+    private bool isPlacementPreview;
 
     private void Awake()
     {
@@ -66,6 +68,9 @@ public class TowerBase : MonoBehaviour
 
     private void Update()
     {
+        if (isPlacementPreview)
+            return;
+
         if (cooldown > 0f)
         {
             cooldown -= Time.deltaTime;
@@ -93,7 +98,8 @@ public class TowerBase : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (towerType != TowerType.Slow || range <= 0f)
+        if ((towerType != TowerType.Slow && towerType != TowerType.Ranged) ||
+            range <= 0f)
             return;
 
         Camera camera = Camera.main;
@@ -102,6 +108,10 @@ public class TowerBase : MonoBehaviour
 
         if (!TryCreateRangeCircleResources())
             return;
+
+        Material material = towerType == TowerType.Ranged
+            ? rangedRangeCircleMaterial
+            : slowRangeCircleMaterial;
 
         Vector3 position = transform.position + Vector3.forward * 0.05f;
         Matrix4x4 matrix = Matrix4x4.TRS(
@@ -113,7 +123,7 @@ public class TowerBase : MonoBehaviour
         Graphics.DrawMesh(
             rangeCircleMesh,
             matrix,
-            rangeCircleMaterial,
+            material,
             gameObject.layer,
             camera,
             0,
@@ -125,7 +135,9 @@ public class TowerBase : MonoBehaviour
 
     private static bool TryCreateRangeCircleResources()
     {
-        if (rangeCircleMesh != null && rangeCircleMaterial != null)
+        if (rangeCircleMesh != null &&
+            rangedRangeCircleMaterial != null &&
+            slowRangeCircleMaterial != null)
             return true;
 
         if (rangeCircleInitializationAttempted)
@@ -167,15 +179,39 @@ public class TowerBase : MonoBehaviour
         rangeCircleMesh.triangles = triangles;
         rangeCircleMesh.RecalculateBounds();
 
-        rangeCircleMaterial = new Material(shader)
+        rangedRangeCircleMaterial = CreateRangeCircleMaterial(
+            shader,
+            "Ranged Tower Range Circle",
+            new Color(1f, 0.1f, 0.1f, RangeCircleOpacity)
+        );
+        slowRangeCircleMaterial = CreateRangeCircleMaterial(
+            shader,
+            "Slow Tower Range Circle",
+            new Color(0f, 0.85f, 1f, RangeCircleOpacity)
+        );
+
+        return true;
+    }
+
+    private static Material CreateRangeCircleMaterial(
+        Shader shader,
+        string materialName,
+        Color color
+    )
+    {
+        return new Material(shader)
         {
-            name = "Slow Tower Range Circle",
-            color = new Color(0f, 0.85f, 1f, RangeCircleOpacity),
+            name = materialName,
+            color = color,
             renderQueue = (int)RenderQueue.Transparent,
             hideFlags = HideFlags.HideAndDontSave
         };
+    }
 
-        return true;
+    public void SetPlacementPreviewMode()
+    {
+        isPlacementPreview = true;
+        cooldown = 0f;
     }
 
     private void ApplyStats()

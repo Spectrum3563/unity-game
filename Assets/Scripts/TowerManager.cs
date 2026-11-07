@@ -48,6 +48,8 @@ public class TowerManager : MonoBehaviour
     private Color[] previewOriginalColors;
     private TMP_Text actionPriceText;
     private RectTransform actionPriceRect;
+    private TMP_Text actionLevelText;
+    private RectTransform actionLevelRect;
 
     private void Awake()
     {
@@ -90,7 +92,7 @@ public class TowerManager : MonoBehaviour
             return;
         }
 
-        CreateActionPriceLabel(fontTemplate);
+        CreateActionLabels(fontTemplate);
         CacheExistingTowers();
         SelectBuildTower(rangedTowerPrefab);
     }
@@ -103,6 +105,7 @@ public class TowerManager : MonoBehaviour
                 previewObject.SetActive(false);
 
             actionPriceText.gameObject.SetActive(false);
+            actionLevelText.gameObject.SetActive(false);
             return;
         }
 
@@ -128,6 +131,7 @@ public class TowerManager : MonoBehaviour
         else
         {
             actionPriceText.gameObject.SetActive(false);
+            actionLevelText.gameObject.SetActive(false);
         }
 
         if (mouse.leftButton.wasPressedThisFrame)
@@ -140,33 +144,58 @@ public class TowerManager : MonoBehaviour
             Destroy(previewObject);
     }
 
-    private void CreateActionPriceLabel(TMP_Text fontTemplate)
+    private void CreateActionLabels(TMP_Text fontTemplate)
+    {
+        actionPriceText = CreateActionLabel(
+            "Tower Action Price",
+            fontTemplate,
+            22f,
+            new Vector2(110f, 56f),
+            out actionPriceRect
+        );
+        actionLevelText = CreateActionLabel(
+            "Tower Action Level",
+            fontTemplate,
+            18f,
+            new Vector2(80f, 32f),
+            out actionLevelRect
+        );
+        actionPriceText.gameObject.SetActive(false);
+        actionLevelText.gameObject.SetActive(false);
+    }
+
+    private TextMeshProUGUI CreateActionLabel(
+        string objectName,
+        TMP_Text fontTemplate,
+        float fontSize,
+        Vector2 size,
+        out RectTransform labelRect
+    )
     {
         GameObject labelObject = new GameObject(
-            "Tower Action Price",
+            objectName,
             typeof(RectTransform),
             typeof(CanvasRenderer),
             typeof(TextMeshProUGUI)
         );
         labelObject.transform.SetParent(overlayCanvas.transform, false);
 
-        actionPriceText = labelObject.GetComponent<TextMeshProUGUI>();
-        actionPriceText.font = fontTemplate.font;
-        actionPriceText.fontSharedMaterial = fontTemplate.fontSharedMaterial;
-        actionPriceText.fontSize = 22f;
-        actionPriceText.fontStyle = FontStyles.Bold;
-        actionPriceText.alignment = TextAlignmentOptions.Center;
-        actionPriceText.color = Color.white;
-        actionPriceText.raycastTarget = false;
-        actionPriceText.text = string.Empty;
+        TextMeshProUGUI label = labelObject.GetComponent<TextMeshProUGUI>();
+        label.font = fontTemplate.font;
+        label.fontSharedMaterial = fontTemplate.fontSharedMaterial;
+        label.fontSize = fontSize;
+        label.fontStyle = FontStyles.Bold;
+        label.alignment = TextAlignmentOptions.Center;
+        label.color = Color.white;
+        label.raycastTarget = false;
+        label.text = string.Empty;
 
-        actionPriceRect = labelObject.GetComponent<RectTransform>();
-        actionPriceRect.anchorMin = Vector2.zero;
-        actionPriceRect.anchorMax = Vector2.zero;
-        actionPriceRect.pivot = new Vector2(0.5f, 0.5f);
-        actionPriceRect.sizeDelta = new Vector2(110f, 56f);
-
-        actionPriceText.gameObject.SetActive(false);
+        labelRect = labelObject.GetComponent<RectTransform>();
+        labelRect.anchorMin = Vector2.zero;
+        labelRect.anchorMax = Vector2.zero;
+        labelRect.pivot = new Vector2(0.5f, 0.5f);
+        labelRect.sizeDelta = size;
+        return label;
     }
 
     private void CacheExistingTowers()
@@ -188,7 +217,9 @@ public class TowerManager : MonoBehaviour
         if (keyboard == null)
             return;
 
-        if (keyboard.digit1Key.wasPressedThisFrame)
+        if (keyboard.digit0Key.wasPressedThisFrame)
+            SelectBuildTower(null);
+        else if (keyboard.digit1Key.wasPressedThisFrame)
             SelectBuildTower(rangedTowerPrefab);
         else if (keyboard.digit2Key.wasPressedThisFrame)
             SelectBuildTower(slowTowerPrefab);
@@ -215,6 +246,7 @@ public class TowerManager : MonoBehaviour
 
         DestroyPreview();
         actionPriceText?.gameObject.SetActive(false);
+        actionLevelText?.gameObject.SetActive(false);
     }
 
     private void UpdatePlacementPreview(Vector3Int cell)
@@ -243,8 +275,12 @@ public class TowerManager : MonoBehaviour
 
         actionPriceText.text = cost.ToString();
         actionPriceText.color = canPlace ? Color.white : Color.red;
-        PositionActionPrice(cell);
+        actionLevelText.text = "Lv" + selectedTowerBase.level;
+        actionLevelText.color = Color.white;
+        PositionCellLabel(cell, new Vector2(0.35f, 0.35f), actionPriceText, actionPriceRect);
+        PositionCellLabel(cell, new Vector2(-0.35f, -0.35f), actionLevelText, actionLevelRect);
         actionPriceText.gameObject.SetActive(true);
+        actionLevelText.gameObject.SetActive(true);
     }
 
     private bool EnsurePreview()
@@ -260,7 +296,7 @@ public class TowerManager : MonoBehaviour
 
         TowerBase previewTowerBase = previewObject.GetComponent<TowerBase>();
         if (previewTowerBase != null)
-            previewTowerBase.enabled = false;
+            previewTowerBase.SetPlacementPreviewMode();
 
         Collider2D[] colliders = previewObject.GetComponentsInChildren<Collider2D>(
             true
@@ -303,6 +339,7 @@ public class TowerManager : MonoBehaviour
         if (selectedUpgradeTower == null)
         {
             actionPriceText.gameObject.SetActive(false);
+            actionLevelText.gameObject.SetActive(false);
             return;
         }
 
@@ -324,21 +361,34 @@ public class TowerManager : MonoBehaviour
                 : Color.red;
         }
 
-        PositionActionPrice(cell);
+        actionLevelText.text = "Lv" + selectedUpgradeTower.level;
+        actionLevelText.color = Color.white;
+        PositionCellLabel(cell, new Vector2(0.35f, 0.35f), actionPriceText, actionPriceRect);
+        PositionCellLabel(cell, new Vector2(-0.35f, -0.35f), actionLevelText, actionLevelRect);
         actionPriceText.gameObject.SetActive(true);
+        actionLevelText.gameObject.SetActive(true);
     }
 
-    private void PositionActionPrice(Vector3Int cell)
+    private void PositionCellLabel(
+        Vector3Int cell,
+        Vector2 cellOffset,
+        TMP_Text labelText,
+        RectTransform labelRect
+    )
     {
         Vector3 worldPosition = grid.GetCellCenterWorld(cell);
         worldPosition += grid.transform.TransformVector(
-            new Vector3(grid.cellSize.x * 0.35f, grid.cellSize.y * 0.35f, 0f)
+            new Vector3(
+                grid.cellSize.x * cellOffset.x,
+                grid.cellSize.y * cellOffset.y,
+                0f
+            )
         );
 
         Vector3 screenPosition = mainCamera.WorldToScreenPoint(worldPosition);
         if (screenPosition.z < 0f)
         {
-            actionPriceText.gameObject.SetActive(false);
+            labelText.gameObject.SetActive(false);
             return;
         }
 
@@ -354,11 +404,11 @@ public class TowerManager : MonoBehaviour
                 out Vector2 localPosition
             ))
         {
-            actionPriceText.gameObject.SetActive(false);
+            labelText.gameObject.SetActive(false);
             return;
         }
 
-        actionPriceRect.anchoredPosition = localPosition - canvasRect.rect.min;
+        labelRect.anchoredPosition = localPosition - canvasRect.rect.min;
     }
 
     private void HandleCellClick(Vector3Int cell)
