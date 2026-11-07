@@ -1046,6 +1046,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   maxHealth: 1
+  startingScore: 30
 --- !u!4 &889130818
 Transform:
   m_ObjectHideFlags: 0
@@ -3119,8 +3120,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 20, y: -20}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 30, y: -45}
+  m_SizeDelta: {x: 200, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1920531862
 MonoBehaviour:
@@ -3687,6 +3688,18 @@ MonoBehaviour:
   rangedTowerPrefab: {fileID: 5524645588166614182, guid: a01479b3fa443bf48b28e8e1d520fa4a, type: 3}
   slowTowerPrefab: {fileID: 6571442785562706262, guid: fea7372158109ba4ea9ead88607126f6, type: 3}
   dotTowerPrefab: {fileID: 5120706685489929777, guid: ebf4c761987f10341b86ba24f8aaa48c, type: 3}
+  playerHealth: {fileID: 889130817}
+  overlayCanvas: {fileID: 1199252685}
+  previewOpacity: 0.15
+  rangedPlacementCost: 20
+  slowPlacementCost: 100
+  dotPlacementCost: 80
+  rangedLevel2Cost: 50
+  rangedLevel3Cost: 100
+  slowLevel2Cost: 120
+  slowLevel3Cost: 200
+  dotLevel2Cost: 120
+  dotLevel3Cost: 180
 --- !u!1 &1985454578
 GameObject:
   m_ObjectHideFlags: 0

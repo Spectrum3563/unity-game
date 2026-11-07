@@ -1,7 +1,14 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class TowerBase : MonoBehaviour
 {
+    private const int RangeCircleSegments = 64;
+    private const float RangeCircleOpacity = 0.18f;
+    private static Mesh rangeCircleMesh;
+    private static Material rangeCircleMaterial;
+    private static bool rangeCircleInitializationAttempted;
+
     public enum TowerType
     {
         Ranged,
@@ -82,6 +89,93 @@ public class TowerBase : MonoBehaviour
                 cooldown = attackInterval;
                 break;
         }
+    }
+
+    private void LateUpdate()
+    {
+        if (towerType != TowerType.Slow || range <= 0f)
+            return;
+
+        Camera camera = Camera.main;
+        if (camera == null)
+            return;
+
+        if (!TryCreateRangeCircleResources())
+            return;
+
+        Vector3 position = transform.position + Vector3.forward * 0.05f;
+        Matrix4x4 matrix = Matrix4x4.TRS(
+            position,
+            Quaternion.identity,
+            new Vector3(range, range, 1f)
+        );
+
+        Graphics.DrawMesh(
+            rangeCircleMesh,
+            matrix,
+            rangeCircleMaterial,
+            gameObject.layer,
+            camera,
+            0,
+            null,
+            ShadowCastingMode.Off,
+            false
+        );
+    }
+
+    private static bool TryCreateRangeCircleResources()
+    {
+        if (rangeCircleMesh != null && rangeCircleMaterial != null)
+            return true;
+
+        if (rangeCircleInitializationAttempted)
+            return false;
+
+        rangeCircleInitializationAttempted = true;
+        Shader shader = Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default");
+        if (shader == null)
+            shader = Shader.Find("Sprites/Default");
+
+        if (shader == null)
+        {
+            Debug.LogError(
+                "Could not find a compatible sprite shader for the slow tower range indicator."
+            );
+            return false;
+        }
+
+        rangeCircleMesh = new Mesh
+        {
+            name = "Slow Tower Range Circle",
+            hideFlags = HideFlags.HideAndDontSave
+        };
+
+        Vector3[] vertices = new Vector3[RangeCircleSegments + 1];
+        int[] triangles = new int[RangeCircleSegments * 3];
+        for (int i = 0; i < RangeCircleSegments; i++)
+        {
+            float angle = i * Mathf.PI * 2f / RangeCircleSegments;
+            vertices[i + 1] = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f);
+
+            int triangleIndex = i * 3;
+            triangles[triangleIndex] = 0;
+            triangles[triangleIndex + 1] = i + 1;
+            triangles[triangleIndex + 2] = (i + 1) % RangeCircleSegments + 1;
+        }
+
+        rangeCircleMesh.vertices = vertices;
+        rangeCircleMesh.triangles = triangles;
+        rangeCircleMesh.RecalculateBounds();
+
+        rangeCircleMaterial = new Material(shader)
+        {
+            name = "Slow Tower Range Circle",
+            color = new Color(0f, 0.85f, 1f, RangeCircleOpacity),
+            renderQueue = (int)RenderQueue.Transparent,
+            hideFlags = HideFlags.HideAndDontSave
+        };
+
+        return true;
     }
 
     private void ApplyStats()

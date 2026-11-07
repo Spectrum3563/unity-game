@@ -21,11 +21,9 @@ public class PlayerHealthUI : MonoBehaviour
         }
 
         playerHealth.OnHealthChanged += UpdateHealthText;
+        playerHealth.OnScoreChanged += UpdateScoreText;
 
-        UpdateHealthText(
-            playerHealth.CurrentHealth,
-            playerHealth.MaxHealth
-        );
+        UpdateStatsText();
     }
 
     private void OnDestroy()
@@ -33,11 +31,35 @@ public class PlayerHealthUI : MonoBehaviour
         if (playerHealth != null)
         {
             playerHealth.OnHealthChanged -= UpdateHealthText;
+            playerHealth.OnScoreChanged -= UpdateScoreText;
         }
     }
 
     private void UpdateHealthText(int currentHealth, int maxHealth)
     {
-        hpText.text = $"HP: {currentHealth}/{maxHealth}";
+        UpdateStatsText(currentHealth, maxHealth, playerHealth.Score);
+    }
+
+    private void UpdateScoreText(int score)
+    {
+        UpdateStatsText(
+            playerHealth.CurrentHealth,
+            playerHealth.MaxHealth,
+            score
+        );
+    }
+
+    private void UpdateStatsText()
+    {
+        UpdateStatsText(
+            playerHealth.CurrentHealth,
+            playerHealth.MaxHealth,
+            playerHealth.Score
+        );
+    }
+
+    private void UpdateStatsText(int currentHealth, int maxHealth, int score)
+    {
+        hpText.text = $"HP: {currentHealth}/{maxHealth}\nScore: {score}";
     }
 }

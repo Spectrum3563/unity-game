@@ -230,6 +230,27 @@ public class EnemyController : MonoBehaviour
             spriteRenderer.color = color;
         }
 
+        if (playerHealth != null)
+            playerHealth.AddScore(GetScoreReward());
+
         Destroy(gameObject, fadeDuration);
+    }
+
+    private int GetScoreReward()
+    {
+        switch (enemySize)
+        {
+            case EnemySize.Small:
+                return 10;
+
+            case EnemySize.Medium:
+                return 20;
+
+            case EnemySize.Large:
+                return 35;
+
+            default:
+                return 0;
+        }
     }
 }
