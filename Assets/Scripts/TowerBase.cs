@@ -53,12 +53,41 @@ public class TowerBase : MonoBehaviour
     public GameObject hitEffectPrefab;
     public float hitEffectLifetime = 0.5f;
 
+    [Header("Hit Effect Per Level")]
+    [Tooltip("Element 0 = level 1, Element 1 = level 2, Element 2 = level 3. Empty slots use Hit Effect Prefab above.")]
+    public GameObject[] levelHitEffects = new GameObject[3];
+
+    [Tooltip("Lifetime per level. 0 uses Hit Effect Lifetime above.")]
+    public float[] levelHitEffectLifetimes = new float[3];
+
+    [Header("Level Up Effect")]
+    [Tooltip("Spawned on the tower each time it levels up.")]
+    public GameObject levelUpEffectPrefab;
+    public float levelUpEffectLifetime = 1f;
+    [Tooltip("Offset from the tower position, e.g. (0, 0.3, 0).")]
+    public Vector3 levelUpEffectOffset = Vector3.zero;
+
+    [Header("Level Sprites")]
+    [Tooltip("Element 0 = level 1, Element 1 = level 2, Element 2 = level 3")]
+    public Sprite[] levelSprites;
+
+    [Tooltip("Size multiplier per level. Element 0 = level 1, Element 1 = level 2, Element 2 = level 3. 1 = original size.")]
+    public float[] levelScales = { 1f, 1f, 1f };
+
     private float cooldown;
     private bool isPlacementPreview;
+    private SpriteRenderer spriteRenderer;
+    private Vector3 baseScale = Vector3.one;
 
     private void Awake()
     {
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        if (spriteRenderer != null)
+            baseScale = spriteRenderer.transform.localScale;
+
         ApplyStats();
+        UpdateSprite();
     }
 
     private void OnValidate()
@@ -299,69 +328,124 @@ public class TowerBase : MonoBehaviour
         }
     }
 
-private void SpawnHitEffect(Vector3 position)
-{
-    if (hitEffectPrefab == null)
-        return;
-
-    GameObject fx = Instantiate(hitEffectPrefab, position, Quaternion.identity);
-    Destroy(fx, hitEffectLifetime);
-}  
-
-
-private void AttackRanged()
-{
-    Collider2D[] enemies = Physics2D.OverlapCircleAll(
-        transform.position,
-        range,
-        enemyLayer
-    );
-
-    if (enemies.Length == 0)
-        return;
-
-    int targets = Mathf.Min(maxTargets, enemies.Length);
-
-    for (int i = 0; i < targets; i++)
+    private void UpdateSprite()
     {
-        EnemyController enemy = enemies[i].GetComponent<EnemyController>();
+        if (spriteRenderer == null)
+            return;
 
-        if (enemy == null || enemy.isDead)
-            continue;
+        int index = level - 1;
 
-        if (projectilePrefab != null)
+        if (levelSprites != null &&
+            index >= 0 &&
+            index < levelSprites.Length &&
+            levelSprites[index] != null)
         {
-            GameObject p = Instantiate(
-                projectilePrefab,
-                transform.position,
-                Quaternion.identity
-            );
+            spriteRenderer.sprite = levelSprites[index];
+        }
 
-            Projectile projectile = p.GetComponent<Projectile>();
+        if (levelScales != null &&
+            index >= 0 &&
+            index < levelScales.Length &&
+            levelScales[index] > 0f)
+        {
+            spriteRenderer.transform.localScale = baseScale * levelScales[index];
+        }
+    }
 
-            if (projectile != null)
+    private GameObject GetHitEffectForLevel()
+    {
+        int index = level - 1;
+
+        if (levelHitEffects != null &&
+            index >= 0 &&
+            index < levelHitEffects.Length &&
+            levelHitEffects[index] != null)
+        {
+            return levelHitEffects[index];
+        }
+
+        return hitEffectPrefab;
+    }
+
+    private float GetHitEffectLifetimeForLevel()
+    {
+        int index = level - 1;
+
+        if (levelHitEffectLifetimes != null &&
+            index >= 0 &&
+            index < levelHitEffectLifetimes.Length &&
+            levelHitEffectLifetimes[index] > 0f)
+        {
+            return levelHitEffectLifetimes[index];
+        }
+
+        return hitEffectLifetime;
+    }
+
+    private void SpawnHitEffect(Vector3 position)
+    {
+        GameObject effect = GetHitEffectForLevel();
+
+        if (effect == null)
+            return;
+
+        GameObject fx = Instantiate(effect, position, Quaternion.identity);
+        Destroy(fx, GetHitEffectLifetimeForLevel());
+    }
+
+    private void AttackRanged()
+    {
+        Collider2D[] enemies = Physics2D.OverlapCircleAll(
+            transform.position,
+            range,
+            enemyLayer
+        );
+
+        if (enemies.Length == 0)
+            return;
+
+        int targets = Mathf.Min(maxTargets, enemies.Length);
+
+        for (int i = 0; i < targets; i++)
+        {
+            EnemyController enemy = enemies[i].GetComponent<EnemyController>();
+
+            if (enemy == null || enemy.isDead)
+                continue;
+
+            if (projectilePrefab != null)
             {
-                projectile.Init(
-                    enemy,
-                    damage,
-                    projectileSpeed,
-                    hitEffectPrefab,
-                    hitEffectLifetime
+                GameObject p = Instantiate(
+                    projectilePrefab,
+                    transform.position,
+                    Quaternion.identity
                 );
+
+                Projectile projectile = p.GetComponent<Projectile>();
+
+                if (projectile != null)
+                {
+                    projectile.Init(
+                        enemy,
+                        damage,
+                        projectileSpeed,
+                        GetHitEffectForLevel(),
+                        GetHitEffectLifetimeForLevel()
+                    );
+                }
+                else
+                {
+                    Destroy(p);
+                }
             }
             else
             {
-                Destroy(p);
+                // No projectile assigned: instant hit.
+                enemy.TakeDamage(damage);
+                SpawnHitEffect(enemy.transform.position);
             }
         }
-        else
-        {
-            // No projectile assigned: instant hit, as before.
-            enemy.TakeDamage(damage);
-            SpawnHitEffect(enemy.transform.position);
-        }
     }
-}
 
     private void AttackSlow()
     {
@@ -408,6 +492,22 @@ private void AttackRanged()
 
         level++;
         ApplyStats();
+        UpdateSprite();
+        SpawnLevelUpEffect();
+    }
+
+    private void SpawnLevelUpEffect()
+    {
+        if (levelUpEffectPrefab == null)
+            return;
+
+        GameObject fx = Instantiate(
+            levelUpEffectPrefab,
+            transform.position + levelUpEffectOffset,
+            Quaternion.identity
+        );
+
+        Destroy(fx, levelUpEffectLifetime);
     }
 
     private void OnDrawGizmosSelected()

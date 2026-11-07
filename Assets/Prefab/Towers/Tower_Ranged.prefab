@@ -124,3 +124,22 @@ MonoBehaviour:
   projectilePrefab: {fileID: 6028100233196965099, guid: d57eaa397c42785458f48a6bac4f0351, type: 3}
   hitEffectPrefab: {fileID: 4699456538241814237, guid: 264f1f401ae9c2942a5c5c8c3451d699, type: 3}
   hitEffectLifetime: 0.5
+  levelHitEffects:
+  - {fileID: 3830196980637909494, guid: 5a998714c8ce38a4b806049cd9ee8d48, type: 3}
+  - {fileID: 3830196980637909494, guid: 5a998714c8ce38a4b806049cd9ee8d48, type: 3}
+  - {fileID: 9023867841808837273, guid: 0d94e0e556edc3848927b9f39dd269d0, type: 3}
+  levelHitEffectLifetimes:
+  - 0
+  - 0
+  - 0
+  levelUpEffectPrefab: {fileID: 6992987938838688826, guid: 3b7c45342e2713b42918f085aa7026ff, type: 3}
+  levelUpEffectLifetime: 1
+  levelUpEffectOffset: {x: 0, y: 0, z: 0}
+  levelSprites:
+  - {fileID: 21300000, guid: c84d25441265a4e42b000f20f8fb20d8, type: 3}
+  - {fileID: 21300000, guid: 40fa9502a6dcb4bdf8829c8654ceecb0, type: 3}
+  - {fileID: 21300000, guid: 03b438cc1edb849a7978ee3571c43887, type: 3}
+  levelScales:
+  - 0.5
+  - 0.4
+  - 0.3
